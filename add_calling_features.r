@@ -72,6 +72,32 @@ snv_indel_ratio = unlist(lapply(unique(table$old_SM), function(old_SM){ get_snv_
 names(snv_indel_ratio) = unique(table$old_SM)
 table$snv_indel_ratio = as.numeric(snv_indel_ratio[table$old_SM])
 
+# MaxRatioWin
+
+to_MaxRatioWin <-function(all_my_data, row_number_variant, wind_length=100){
+  cur_data = all_my_data[-row_number_variant,] #remove current variant from distances computations
+  cur_data = cur_data[which(cur_data$Chr==all_my_data[row_number_variant,"Chr"] & 
+                              cur_data$old_SM==all_my_data[row_number_variant,"old_SM"] &
+                              cur_data$Start <= (all_my_data[row_number_variant,"Start"] +  wind_length/2) &
+                              cur_data$Start >= (all_my_data[row_number_variant,"Start"] -  wind_length/2)),]
+  max(cur_data$AF / all_my_data[row_number_variant,"AF"])
+}
+
+table$MaxRatioWin = unlist(lapply(1:nrow(table), function(i) to_MaxRatioWin(table, i) ))
+
+# NbVarWin
+
+to_NbVarWin <-function(all_my_data, row_number_variant, wind_length=100){
+  cur_data = all_my_data[-row_number_variant,] #remove current variant from distances computations
+  cur_data = cur_data[which(cur_data$Chr==all_my_data[row_number_variant,"Chr"] & 
+                              cur_data$old_SM==all_my_data[row_number_variant,"old_SM"] &
+                              cur_data$Start <= (all_my_data[row_number_variant,"Start"] +  wind_length/2) &
+                              cur_data$Start >= (all_my_data[row_number_variant,"Start"] -  wind_length/2)),]
+  nrow(cur_data)
+}
+
+table$NbVarWin = unlist(lapply(1:nrow(table), function(i) to_NbVarWin(table, i) ))
+
 write.table(table, file=paste(paste(gsub(".txt","",args$table),"supp_features",sep="_"),
                               ".txt",sep=""), quote=F, sep="\t")
 
