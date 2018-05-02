@@ -1,4 +1,3 @@
-library(randomForest)
 library(reprtree)
 library(caret)
 setwd("~/Documents/Models/variant-filtering")
@@ -10,30 +9,34 @@ train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", 
 
 train_table = train_table[which(train_table$TYPE=="snv"),]
 
-train_table[which(is.infinite(train_table$MIN)),"MIN_DIST"] = 1000000000
+train_table[which(is.infinite(train_table$MIN_DIST)),"MIN_DIST"] = 1000000000
+train_table[which(is.infinite(train_table$MaxRatioWin)),"MaxRatioWin"] = 1000000000
 
 propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
-rf = randomForest(as.factor(status) ~ RVSB + AF + ERR + DP,
-                  data = train_table,
+my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "SIG", "MaxRatioWin", "NbVarWin")
+
+rf = randomForest(as.factor(status) ~ .,
+                  data = train_table[,my_features],
                   importance = TRUE, # to allow us to inspect variable importance
-                  ntree = 500, classwt = c(propTP, propFP), maxnodes=10) # weighted FP by propTP and TP by propFP
+                  ntree = 500, classwt = c(propTP, propFP)) # weighted FP by propTP and TP by propFP
 
 # look at variable importance
 varImpPlot(rf)
 
-# contruct the consensus tree and plot it
+# contruct the representative tree and plot it
+# definition: Representative trees are, in some sense, trees in the ensemble which are on average the "closest" to 
+#             all the other trees in the ensemble.
 tree = ReprTree(rf, train_table, metric='d2')
 plot(tree)
 
 # plot first tree from the forest : reprtree:::plot.getTree(rf, k = 1)
 
 # use K-fold
-folds <- createFolds(train_table$status, 20)
+folds <- createFolds(train_table$status, 10)
 kfold_spec = c()
 kfold_sens = c()
-kfold_FDR = c()
 kfold_TDR = c()
 
 for(i in 1:10){
@@ -44,8 +47,8 @@ for(i in 1:10){
   propTP = as.numeric(table(train$status)["TP"] / nrow(train))
   propFP = as.numeric(table(train$status)["FP"] / nrow(train))
   
-  rf_fold = randomForest(as.factor(status) ~ RVSB + AF + DP + ERR + QVAL + AO,
-                         data = train,
+  rf_fold = randomForest(as.factor(status) ~ .,
+                         data = train[,my_features],
                          importance = TRUE, # to allow us to inspect variable importance
                          ntree = 500, classwt = c(propTP, propFP), maxnodes=10)
   test$prediction = predict(rf_fold, test)
