@@ -15,12 +15,16 @@ train_table[which(is.infinite(train_table$MaxRatioWin)),"MaxRatioWin"] = 1000000
 propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
-my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "SIG", "QUAL", "MaxRatioWin", "NbVarWin")
+train_table$IoD = 1 + train_table$SIG * 10^(train_table$ERR)
+
+my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD")
 
 rf = randomForest(as.factor(status) ~ .,
                   data = train_table[,my_features],
                   importance = TRUE, # to allow us to inspect variable importance
                   ntree = 500, classwt = c(propTP, propFP)) # weighted FP by propTP and TP by propFP
+
+train_table$prediction = predict(rf, train_table)
 
 # look at variable importance
 varImpPlot(rf)
@@ -61,4 +65,12 @@ boxplot(data.frame("TDR"=kfold_TDR,
                    "sensitivity"=kfold_sens,
                    "specificity"=kfold_spec), col="lightgrey", ylim=c(0.8,1))
 
+# compare with home filters
 
+train_table$prediction_home_filters = "FP"
+train_table[which(train_table$AF>0.1 & train_table$RVSB<0.95 & train_table$DP>50 & train_table$ERR<(-2) & train_table$AO>3),"prediction_home_filters"] = "TP"
+sens_home_filter = sum(train_table$status=="TP" & train_table$prediction_home_filters=="TP") / sum(train_table$status=="TP")
+TDR_home_filters = sum(train_table$status == "TP" & train_table$prediction_home_filters == "TP") / sum(train_table$prediction_home_filters == "TP")
+
+sens_rf = sum(train_table$status=="TP" & train_table$prediction=="TP") / sum(train_table$status=="TP")
+TDR_rf = sum(train_table$status == "TP" & train_table$prediction == "TP") / sum(train_table$prediction == "TP")
