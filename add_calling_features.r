@@ -98,6 +98,33 @@ to_NbVarWin <-function(all_my_data, row_number_variant, wind_length=100){
 
 table$NbVarWin = unlist(lapply(1:nrow(table), function(i) to_NbVarWin(table, i) ))
 
+# HpLength
+count_rep = function(region, ref_pos=4){ #in needlestack vcf cont is 3x3 so ref is in pos 4
+  right = substr(region, ref_pos, nchar(region))
+  left = substr(region, 1, ref_pos);  left = paste(rev(unlist(strsplit(left,NULL))),collapse="")
+  count_rep_first_letter(right) + count_rep_first_letter(left) - 1
+}
+
+count_rep_first_letter = function(word){
+  counts=1
+  i=2
+  while(i<=nchar(word)){
+    if(substr(word,i,i) == substr(word,i-1,i-1)) {counts=counts+1;i=i+1} else {i=nchar(word)+1}
+  }
+  counts
+}
+
+to_HpLength <- function(all_my_data, row_number_variant){
+  cont = all_my_data[row_number_variant,"CONT"]
+  cont = gsub("x",all_my_data[row_number_variant,"Ref"],cont)
+  count_rep(cont)
+}
+
+table$HpLength = unlist(lapply(1:nrow(table), function(i) to_HpLength(table, i) ))
+
+# output
+
 write.table(table, file=paste(paste(gsub(".txt","",args$table),"supp_features",sep="_"),
                               ".txt",sep=""), quote=F, sep="\t")
+
 
