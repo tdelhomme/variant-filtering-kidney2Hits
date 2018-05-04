@@ -15,7 +15,7 @@ train_table[which(is.infinite(train_table$MaxRatioWin)),"MaxRatioWin"] = 1000000
 propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
-my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "SIG", "MaxRatioWin", "NbVarWin")
+my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "SIG", "QUAL", "MaxRatioWin", "NbVarWin")
 
 rf = randomForest(as.factor(status) ~ .,
                   data = train_table[,my_features],
