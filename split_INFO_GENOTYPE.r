@@ -44,7 +44,7 @@ if(split_info){
   })
   for(i in 1:length(all_fields)){
     field = all_fields[i]
-    table[,all_fields[i]] = unlist(lapply(field_value, function(x) x[field]))
+    table[,paste(field,"INFO",sep="_")] = unlist(lapply(field_value, function(x) x[field]))
   }
   
   if(plots){
