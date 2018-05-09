@@ -32,7 +32,7 @@ while(dim(vcf_chunk)[1] != 0) {
   
   # compute chi-squared statistic
   chi2 = function(AOobs, AOexp){
-    (AOobs - AOexp) ^2 / AOexp
+    (AOobs - AOexp) ^2 / (AOexp^2)
   }
   
   all_chi2 = unlist(lapply(1:nrow(AOexp_matrix), function(i){
