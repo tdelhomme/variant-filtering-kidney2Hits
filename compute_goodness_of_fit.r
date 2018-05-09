@@ -36,8 +36,10 @@ while(dim(vcf_chunk)[1] != 0) {
   }
   
   all_chi2 = unlist(lapply(1:nrow(AOexp_matrix), function(i){
-    all_AOexp = AOexp_matrix[i,][which(QVAL_matrix[i,]<=max_QVAL)]
-    all_AOobs = AO_matrix[i,][which(QVAL_matrix[i,]<=max_QVAL)]
+    if(is.na(as.character(geno(vcf_chunk[i,1])$QVAL))){ #here we have QVAL_INV
+      ids = which(QVAL_INV_matrix[i,]>max_QVAL) } else { ids = which(QVAL_matrix[i,]<=max_QVAL) }
+    all_AOexp = AOexp_matrix[i,][ids]
+    all_AOobs = AO_matrix[i,][ids]
     sum(mapply(chi2, all_AOobs, all_AOexp))
   }))
   
