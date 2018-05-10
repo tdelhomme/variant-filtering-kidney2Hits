@@ -31,23 +31,23 @@ while(dim(vcf_chunk)[1] != 0) {
   AOexp_matrix = data.frame(matrix(unlist(AOexp_matrix), nrow=length(AOexp_matrix), byrow=T))
   
   # compute chi-squared statistic
-  chi2 = function(AOobs, AOexp){
-    (AOobs - AOexp) ^2 / (AOexp^2)
+  gof_stat = function(AOobs, AOexp){
+    (AOobs - AOexp) ^2 / ((1 - AOexp)^2)
   }
   
-  all_chi2 = unlist(lapply(1:nrow(AOexp_matrix), function(i){
+  all_gof_stat = unlist(lapply(1:nrow(AOexp_matrix), function(i){
     if(is.na(as.character(geno(vcf_chunk[i,1])$QVAL))){ #here we have QVAL_INV
       ids = which(QVAL_INV_matrix[i,]>max_QVAL) } else { ids = which(QVAL_matrix[i,]<=max_QVAL) }
     all_AOexp = AOexp_matrix[i,][ids]
     all_AOobs = AO_matrix[i,][ids]
-    sum(mapply(chi2, all_AOobs, all_AOexp))
+    sum(mapply(gof_stat, all_AOobs, all_AOexp)) / length(all_AOobs)
   }))
   
   #annotate the header of the chunk
   info(header(vcf_chunk))["GOF",]=list("1","Integer","Goodness of fit from the chi-squared statistic")
 
   #annotate the chunk with computed values
-  info(vcf_chunk)[,"GOF"] = all_chi2
+  info(vcf_chunk)[,"GOF"] = all_gof_stat
 
   #write out the annotated VCF
   con = file(output_vcf, open = "a")
