@@ -44,7 +44,7 @@ while(dim(vcf_chunk)[1] != 0) {
   }))
   
   #annotate the header of the chunk
-  info(header(vcf_chunk))["GOF",]=list("1","Integer","Goodness of fit from the chi-squared statistic")
+  info(header(vcf_chunk))["GOF",]=list("1","Float","Goodness of fit from the chi-squared statistic")
 
   #annotate the chunk with computed values
   info(vcf_chunk)[,"GOF"] = all_gof_stat
