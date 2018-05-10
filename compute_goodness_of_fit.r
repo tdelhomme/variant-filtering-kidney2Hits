@@ -27,7 +27,7 @@ while(dim(vcf_chunk)[1] != 0) {
   
   # compute AO expected
   errors = info(vcf_chunk)$ERR
-  AOexp_matrix = lapply(1:nrow(DP_matrix), function(i){ round(DP_matrix[i,] * errors[i]) })
+  AOexp_matrix = lapply(1:nrow(DP_matrix), function(i){ DP_matrix[i,] * errors[i] })
   AOexp_matrix = data.frame(matrix(unlist(AOexp_matrix), nrow=length(AOexp_matrix), byrow=T))
   
   # compute chi-squared statistic
