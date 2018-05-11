@@ -32,7 +32,7 @@ while(dim(vcf_chunk)[1] != 0) {
   
   # compute chi-squared statistic
   gof_stat = function(AOobs, AOexp){
-    (AOobs - AOexp) ^2 / ((1 - AOexp)^2)
+    (AOobs - AOexp) ^2 / ((1 + AOexp)^2) # one at the denominator to deal with value between 0 and 1
   }
   
   all_gof_stat = unlist(lapply(1:nrow(AOexp_matrix), function(i){
@@ -40,7 +40,7 @@ while(dim(vcf_chunk)[1] != 0) {
       ids = which(QVAL_INV_matrix[i,]>max_QVAL) } else { ids = which(QVAL_matrix[i,]<=max_QVAL) }
     all_AOexp = AOexp_matrix[i,][ids]
     all_AOobs = AO_matrix[i,][ids]
-    sum(mapply(gof_stat, all_AOobs, all_AOexp)) / length(all_AOobs)
+    sum(mapply(gof_stat, all_AOobs, all_AOexp)) / length(all_AOobs) #normalize by number of samples
   }))
   
   #annotate the header of the chunk
