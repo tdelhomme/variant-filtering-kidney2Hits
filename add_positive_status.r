@@ -83,25 +83,19 @@ table[which(table$Alt == 0), "Alt"] = "-"
 
 ##### add the postive status ####
 
-table$status = "FP"
-
-table[which(table$coverage < min_dp_table | is.na(table$coverage)),"status"] = NA
-
-table_test_if_FP = which(!is.na(table$status)) # if coverage ok we test if TP/FP
-res = unlist(lapply(table_test_if_FP, function(i) {
+table$status = unlist(lapply(1:nrow(table), function(i) {
   dat_table = table[i,]
   dat = vcf[which(vcf$`#CHROM`== dat_table$Chr & vcf$POS == dat_table$Start & vcf$REF == dat_table$Ref & vcf$ALT == dat_table$Alt ), c("FORMAT",dat_table$SM)]
   if(dim(dat)[1]!=0){
     qval = get_genotype(as.character(dat[2]), as.character(dat[1]),"QVAL")
     qval_inv = get_genotype(as.character(dat[2]), as.character(dat[1]),"QVAL_INV")
-    if(!is.na(qval) & qval >= min_qval_vcf) { return("TP") } else {
-      if(!is.na(qval_inv) & qval_inv <= min_qval_vcf) { return("TP") } else {
+    if( (!is.na(qval) & qval >= min_qval_vcf) | (!is.na(qval_inv) & qval_inv <= min_qval_vcf) ) { return("TP") } else {
+      if(is.na(dat_table$coverage) | dat_table$coverage<20) { return(NA) } else {
         return("FP")
       }
     }
   } else { return("FP") }
 })) 
-table[table_test_if_FP,"status"] = res
 
 table = table[which(!is.na(table$status)),]
 
