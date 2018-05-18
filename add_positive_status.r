@@ -23,7 +23,7 @@ if(is.null(args$table) | is.null(args$vcf)) {
       Optional argumets:
       --min_qval_vcf=20           - minimum q-value in the VCF to consider a variant
       --min_qval_table=50         - minimum q-value in the table to consider a variant
-      --min_dp_table=20           - minimum DP in the table to check for positive status
+      --min_ao_q=5                - minimum AO expected in WES to consider a proton FP (if not seen in WES) 
       --variable_to_plot          - list of variables in the table to plot, depending on FP/TP status 
                                     e.g. --variable_to_plot=RVSB,ERR
       --to_log10                  - list of variables in the table to transform in log10 scale (convenient for plots)
@@ -38,7 +38,7 @@ if(is.null(args$table) | is.null(args$vcf)) {
 
 if(is.null(args$min_qval_vcf)) {min_qval_vcf=20} else {min_qval_vcf=as.numeric(args$min_qval_vcf)}
 if(is.null(args$min_qval_table)) {min_qval_table=50} else {min_qval_table=as.numeric(args$min_qval_table)}
-if(is.null(args$min_dp_table)) {min_dp_table=20} else {min_dp_table=as.numeric(args$min_dp_table)}
+if(is.null(args$min_ao_q)) {min_ao_q=5} else {min_ao_q=as.numeric(args$min_ao_q)}
 if(is.null(args$variable_to_plot)) {variable_to_plot=NULL} else {variable_to_plot=unlist(strsplit(args$variable_to_plot,","))}
 if(is.null(args$to_log10)) {to_log10=NULL} else {to_log10=unlist(strsplit(args$to_log10,","))}
 if(is.null(args$reformat_indels)) {reformat_indels=FALSE} else {reformat_indels=TRUE}
@@ -85,16 +85,17 @@ table[which(table$Alt == 0), "Alt"] = "-"
 
 table$status = unlist(lapply(1:nrow(table), function(i) {
   dat_table = table[i,]
+  min_ao_est_q = qnbinom(0.01, size = 1/0.1, mu = 0.5*dat_table$coverage) #quantile at 1% with a negative binomial
   dat = vcf[which(vcf$`#CHROM`== dat_table$Chr & vcf$POS == dat_table$Start & vcf$REF == dat_table$Ref & vcf$ALT == dat_table$Alt ), c("FORMAT",dat_table$SM)]
   if(dim(dat)[1]!=0){
     qval = get_genotype(as.character(dat[2]), as.character(dat[1]),"QVAL")
     qval_inv = get_genotype(as.character(dat[2]), as.character(dat[1]),"QVAL_INV")
     if( (!is.na(qval) & qval >= min_qval_vcf) | (!is.na(qval_inv) & qval_inv <= min_qval_vcf) ) { return("TP") } else {
-      if(is.na(dat_table$coverage) | dat_table$coverage<20) { return(NA) } else {
+      if(is.na(dat_table$coverage) | (min_ao_est_q<min_ao_q)) { return(NA) } else {
         return("FP")
       }
     }
-  } else { return("FP") }
+  } else { if(is.na(dat_table$coverage) | (min_ao_est_q<min_ao_q)) { return(NA) } else { return("FP") } }
 })) 
 
 table = table[which(!is.na(table$status)),]
