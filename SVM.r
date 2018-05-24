@@ -20,10 +20,7 @@ for(i in 1:10){
   print(paste("fold: ",i,sep=""))
   test = train_table[folds[[i]],]
   train = train_table[-folds[[i]],]
-  
-  propTP = as.numeric(table(train$status)["TP"] / nrow(train))
-  propFP = as.numeric(table(train$status)["FP"] / nrow(train))
-  
+    
   rf_fold = randomForest(as.factor(status) ~ .,
                          data = train[,my_features],
                          importance = TRUE, # to allow us to inspect variable importance
