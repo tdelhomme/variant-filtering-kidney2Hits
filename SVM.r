@@ -1,11 +1,8 @@
 library(e1071)
 
-train_table$status = as.factor(train_table$status)
-
-model_svm <- svm(status ~ . , data=train_table[,my_features])
+model_svm <- svm(as.factor(status) ~ . , data=train_table[,my_features])
 
 pred = predict(model_svm, train_table[,my_features])
-
 
 sens_svm = sum(train_table$status=="TP" & pred=="TP") / sum(train_table$status=="TP")
 TDR_svm = sum(train_table$status == "TP" & pred == "TP") / sum(pred == "TP")
