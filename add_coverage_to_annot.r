@@ -42,7 +42,7 @@ var_table$coverage = unlist(lapply(1:nrow(var_table), function(i){
   dat = var_table[i,]
   bc = paste(dat$Chr,dat$Start,sep="-")
   cov=coverage[bc, match(dat$SM, colnames(coverage))]
-  if(is.null(cov)) print(i)
+  if(is.null(cov)) return(NA)
   cov
 }))
 
