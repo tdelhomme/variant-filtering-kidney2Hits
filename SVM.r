@@ -21,11 +21,8 @@ for(i in 1:10){
   propTP = as.numeric(table(train$status)["TP"] / nrow(train))
   propFP = as.numeric(table(train$status)["FP"] / nrow(train))
   
-  rf_fold = randomForest(as.factor(status) ~ .,
-                         data = train[,my_features],
-                         importance = TRUE, # to allow us to inspect variable importance
-                         ntree = 500, sampsize = as.numeric(table(train$status)["TP"])) #classwt = c(propTP, propFP))
-  test$prediction = predict(rf_fold, test)
+  svm_fold = svm(as.factor(status) ~ . , data=train[,my_features])
+  test$prediction = predict(svm_fold, test[,my_features])
   kfold_sens = c(kfold_sens, (sum(test$status == "TP" & test$prediction == "TP") / sum(test$status == "TP")) )
   kfold_spec = c(kfold_spec, (sum(test$status == "FP" & test$prediction == "FP") / sum(test$status == "FP")) )
   kfold_TDR = c(kfold_TDR, (sum(test$status == "TP" & test$prediction == "TP") / sum(test$prediction == "TP")) )
