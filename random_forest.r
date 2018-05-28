@@ -3,8 +3,7 @@ library(caret)
 setwd("~/Documents/Models/variant-filtering")
 set.seed(123) # here I fix the seed of the random generator to have the same random numbers if re-run 
 
-
-train_table="old_on_big_VCF/withDP20/K2H_AllVariants_NoMinAF_WES_samples_illuminaBED_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status.txt"
 train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
 
 train_table = train_table[which(train_table$TYPE=="snv"),]
@@ -17,8 +16,8 @@ propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
 train_table$IoD = 1 + train_table$SIG * 10^(train_table$ERR)
 
-my_features=c("status","RVSB", "FS","AF","ERR","DP", "QVAL", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD")
-my_features=c("status","RVSB","AF","ERR","DP","QVAL")
+my_features=c("status","RVSB_INFO", "QVAL","AF","ERR_INFO","DP",
+              "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
 
 rf = randomForest(as.factor(status) ~ .,
                   data = train_table[,my_features],

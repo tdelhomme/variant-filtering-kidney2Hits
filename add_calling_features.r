@@ -49,7 +49,7 @@ table$MIN_DIST = unlist(lapply(1:nrow(table), function(i) log10(min_distance(tab
 get_TsTv <- function(table, old_SM){
   transitions = c("AG","GA","CT","TC")
   data = table[which(old_SM == table$old_SM),] # get SM data
-  data = data[which(data$TYPE=="snv"),] # get only SNV data
+  data = data[which(data$TYPE_INFO=="snv"),] # get only SNV data
   subst = paste(data$Ref, data$Alt, sep="")
   Ts = length(which(subst %in% transitions)) 
   TsTv = Ts / (length(subst) - Ts)
@@ -64,7 +64,7 @@ table$TsTv = as.numeric(TsTv[table$old_SM])
 
 get_snv_indel_ratio <- function(table, old_SM){
   data = table[which(old_SM == table$old_SM),] # get SM data
-  res = length(which(data$TYPE=="snv")) /   length(which(data$TYPE=="del" | data$TYPE=="ins"))
+  res = length(which(data$TYPE_INFO=="snv")) /   length(which(data$TYPE_INFO=="del" | data$TYPE_INFO=="ins"))
   return(res)
 }
 
@@ -115,7 +115,7 @@ count_rep_first_letter = function(word){
 }
 
 to_HpLength <- function(all_my_data, row_number_variant){
-  cont = all_my_data[row_number_variant,"CONT"]
+  cont = all_my_data[row_number_variant,"CONT_INFO"]
   cont = gsub("x",all_my_data[row_number_variant,"Ref"],cont)
   count_rep(cont)
 }

@@ -50,6 +50,7 @@ if(split_info){
   if(plots){
     pdf("INFO_fields.pdf", 6.5, 5)
     for(f in all_fields){
+      f = paste(field,"INFO",sep="_")
       if(!suppressWarnings(is.na(as.numeric(table[1,f])))){
         hist(as.numeric(table[,f]), br=20, main=f, ylab="counts", xlab=f, col=adjustcolor("tomato",0.75), border="tomato")
       }
