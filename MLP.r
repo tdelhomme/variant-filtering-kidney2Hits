@@ -12,5 +12,26 @@ model_mlp <- monmlp.fit(x, y, hidden1=3, n.ensemble=15, monotone=1, bag=TRUE)
 pred = monmlp.predict(x = x, weights = model_mlp)
 
 library(ROCR)
-plot( performance( prediction( pred, y ), "prec","rec" ), colorize=T, xlim=c(1,0.9) )
-performance( prediction( pred, y ), "auc" )@y.values[[1]]
+perf = performance( prediction( pred, y ), "prec","rec" )
+plot(perf, colorize=T, xlim=c(1,0.9))
+auc = performance( prediction( pred, y ), "auc" )@y.values[[1]]
+
+
+# analyses #
+
+coeffs_from_2_pts <- function(x1, y1, x2, y2){
+  a = (y2 - y1) / (x2 - x1)
+  b = y1 - a * x1
+  return(list(a=a, b=b))
+}
+
+sens_thr = 0.98
+
+cf = coeffs_from_2_pts(x1 = unlist(perf@x.values)[rev(which(unlist(perf@x.values)<=sens_thr))[1]],
+                  y1 = unlist(perf@y.values)[rev(which(unlist(perf@x.values)<=sens_thr))[1]],
+                  x2 = unlist(perf@x.values)[which(unlist(perf@x.values)>=sens_thr)[1]],
+                  y2 = unlist(perf@y.values)[which(unlist(perf@x.values)>=sens_thr)[1]])
+
+fdr = cf[["a"]] * sens_thr + cf[["b"]]
+
+points(sens_thr, fdr)
