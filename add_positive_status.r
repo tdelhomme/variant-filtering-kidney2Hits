@@ -73,8 +73,8 @@ if(reformat_indels){
 }
 
 # remove unrare variants
-table$ExAC_nontcga_Max = apply(table[,which(grepl("ExAC_nontcga", colnames(table)) & !grepl("_ALL",colnames(table)))],
-                               1, max)
+table$ExAC_nontcga_Max = as.numeric(apply(table[,which(grepl("ExAC_nontcga", colnames(table)) & !grepl("_ALL",colnames(table)))],
+                               1, max))
 if(!keep_unrare) table = table[which( (is.na(table$ExAC_nontcga_Max) | table$ExAC_nontcga_Max<0.1 ) & table$VF<0.1),]
 
 # correct table indel notation
