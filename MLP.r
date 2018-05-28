@@ -1,6 +1,6 @@
 library(monmlp)
 
-x = as.matrix(train_table[,c("RVSB","QVAL")])
+x = data.matrix(train_table[,my_features[my_features!="status"]])
 
 y = train_table$status
 y[which(y=="TP")] = 1
@@ -12,5 +12,5 @@ model_mlp <- monmlp.fit(x, y, hidden1=3, n.ensemble=15, monotone=1, bag=TRUE)
 pred = monmlp.predict(x = x, weights = model_mlp)
 
 library(ROCR)
-plot( performance( prediction( pred, y ), "tpr","fpr" ),colorize=T )
+plot( performance( prediction( pred, y ), "prec","rec" ), colorize=T, xlim=c(1,0.9) )
 performance( prediction( pred, y ), "auc" )@y.values[[1]]
