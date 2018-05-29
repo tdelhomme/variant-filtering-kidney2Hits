@@ -36,14 +36,14 @@ res = foreach(i=1:10, .combine=cbind, .packages = c("randomForest","monmlp","e10
                          ntree = 500, sampsize = as.numeric(table(train$status)["TP"])) 
   test$prediction = predict(rf_fold, test)
   auc_rf = performance( prediction(test$prediction, test$target), "auc" )@y.values[[1]]
-  plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), colorize.palette="darkred")
+  #plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), colorize.palette="darkred")
   
   # support vector machine
   print("PERFORMING SVMs")
   svm_fold = svm(target ~ . , data=train[,my_features])  
   test$prediction = predict(svm_fold, test[,my_features])
   auc_svm = performance( prediction(test$prediction, test$target), "auc" )@y.values[[1]]
-  plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), add=T, colorize.palette="darkgreen")
+  #plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), add=T, colorize.palette="darkgreen")
 
   # multilayers perceptron
   print("PERFORMING MLPs")
@@ -52,13 +52,12 @@ res = foreach(i=1:10, .combine=cbind, .packages = c("randomForest","monmlp","e10
   model_mlp <- monmlp.fit(x, y, hidden1=5, n.ensemble=15, monotone=1, bag=TRUE)
   test$prediction = monmlp.predict(x = data.matrix(test[,my_features[my_features!="target"]]), weights = model_mlp)
   auc_mlp = performance( prediction(test$prediction, test$target), "auc" )@y.values[[1]]
-  plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), add=T, colorize.palette="darkblue")
+  #plot(performance(prediction(test$prediction, test$target), "prec","rec" ), colorize=T, xlim=c(1,0.95), add=T, colorize.palette="darkblue")
   
   c(auc_rf, auc_mlp, auc_svm)
 }
 stopCluster(cl)
 
-
-boxplot(data.frame("RF"=res[1,], "SVM"=res[2,], "MLP"=res[3,]))
+boxplot(data.frame("RF"=res[1,], "SVM"=res[2,], "MLP"=res[3,]), col="lightgrey", ylim=c(0.95,1))
 
 
