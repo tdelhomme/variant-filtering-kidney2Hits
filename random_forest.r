@@ -17,6 +17,12 @@ propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 my_features=c("status","RVSB_INFO", "QVAL","AF","ERR_INFO","DP",
               "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
 
+if(dbsnp_status){
+  train_table$WES_status = train_table$status
+  train_table$status = "FP"
+  train_table[which(!is.na(train_table$avsnp150)),"status"] = "TP"
+}
+
 rf = randomForest(as.factor(status) ~ .,
                   data = train_table[,my_features],
                   importance = TRUE, # to allow us to inspect variable importance
