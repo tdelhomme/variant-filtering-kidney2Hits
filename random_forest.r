@@ -6,15 +6,13 @@ set.seed(123) # here I fix the seed of the random generator to have the same ran
 train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
 train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
 
-train_table = train_table[which(train_table$TYPE=="snv"),]
-
+train_table$IoD = 1 + train_table$SIG * 10^(train_table$ERR)
+train_table = train_table[which(train_table$TYPE_INFO=="snv"),]
 train_table[which(is.infinite(train_table$MIN_DIST)),"MIN_DIST"] = 1000000000
 train_table[which(is.infinite(train_table$MaxRatioWin)),"MaxRatioWin"] = 1000000000
 
 propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
-
-train_table$IoD = 1 + train_table$SIG * 10^(train_table$ERR)
 
 my_features=c("status","RVSB_INFO", "QVAL","AF","ERR_INFO","DP",
               "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
