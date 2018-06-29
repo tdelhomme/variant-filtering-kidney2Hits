@@ -8,26 +8,30 @@ train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", 
 
 train_table$IoD = 1 + train_table$SIG * 10^(train_table$ERR)
 train_table = train_table[which(train_table$TYPE_INFO=="snv"),]
+#train_table = train_table[which(train_table$TYPE_INFO=="ins" | train_table$TYPE_INFO=="del"),]
 train_table[which(is.infinite(train_table$MIN_DIST)),"MIN_DIST"] = 1000000000
 train_table[which(is.infinite(train_table$MaxRatioWin)),"MaxRatioWin"] = 1000000000
 
 propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
-my_features=c("status","RVSB_INFO", "QVAL","AF","ERR_INFO","DP",
+my_features=c("status","RVSB", "QVAL","AF","ERR_INFO","DP", "medianDP_INFO",
               "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
 
-if(dbsnp_status){
-  train_table$WES_status = train_table$status
-  train_table$status = "FP"
-  train_table[which(!is.na(train_table$avsnp150)),"status"] = "TP"
+if(exists("dbsnp_status")){
+  if(dbsnp){
+    train_table$WES_status = train_table$status
+    train_table$status = "FP"
+    train_table[which(!is.na(train_table$avsnp150)),"status"] = "TP"
+  }
 }
 
 rf = randomForest(as.factor(status) ~ .,
                   data = train_table[,my_features],
                   importance = TRUE, # to allow us to inspect variable importance
-                  ntree = 500, sampsize = as.numeric(table(train_table$status)["TP"]), #classwt = c(propTP, propFP), # weighted FP by propTP and TP by propFP
-                  maxnodes=10, nodesize=20) 
+                  ntree = 500, sampsize = as.numeric(table(train_table$status)["TP"]) #classwt = c(propTP, propFP), # weighted FP by propTP and TP by propFP
+                  # ,maxnodes=10, nodesize=20
+                  ) 
 
 train_table$prediction = predict(rf, train_table)
 
