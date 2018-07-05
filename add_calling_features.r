@@ -17,14 +17,23 @@ if(is.null(args$table) | help) {
 
       Mandatory arguments:
       --table=file_name           - annotated table file to add a status
-
+      Optional arguments:
+      --remove_bc                 - remove sequencing barcodes in the annotated table (sample name in the form barcode-SM)
       --help                      - print this text
 
       example: add_calling_features.r --table=test_annotated.txt \n\n")
   q(save="no")
 }
 
+if(is.null(args$remove_bc)) {remove_bc=FALSE} else {remove_bc=TRUE}
+
 table = read.table(args$table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
+
+if(remove_bc){
+  table$old_SM = table$SM
+  table$SM = unlist(lapply(table$SM, function(x) unlist(strsplit(x,"-"))[2]))
+  table$SM = gsub("Qc_","",table$SM)
+} 
 
 # minimum distance
 
