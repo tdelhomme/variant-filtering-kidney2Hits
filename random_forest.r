@@ -6,6 +6,7 @@ set.seed(123) # here I fix the seed of the random generator to have the same ran
 
 train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
 test_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+
 train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
 test_table = read.table(test_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
 
@@ -46,9 +47,9 @@ rf = randomForest(as.factor(status) ~ .,
                   # ,maxnodes=10, nodesize=20
                   ) 
 
-train_table$prediction = predict(rf, train_table)
-
 test_table$prediction = predict(rf, test_table)
+sens = sum(test_table$status == "TP" & test_table$prediction == "TP") / sum(test_table$status == "TP")
+fdr = 1 - (sum(test_table$status == "TP" & test_table$prediction == "TP") / sum(test_table$prediction == "TP"))
 
 # look at variable importance
 varImpPlot(rf)
@@ -66,12 +67,12 @@ kfold_spec = c()
 kfold_sens = c()
 kfold_TDR = c()
 
-folds <- createFolds(train_table$status, 10)
+folds <- createFolds(test_table$status, 10)
 
 for(i in 1:10){
   print(paste("fold: ",i,sep=""))
-  test = train_table[folds[[i]],]
-  train = train_table[-folds[[i]],]
+  test = test_table[folds[[i]],]
+  train = test_table[-folds[[i]],]
   
   propTP = as.numeric(table(train$status)["TP"] / nrow(train))
   propFP = as.numeric(table(train$status)["FP"] / nrow(train))
