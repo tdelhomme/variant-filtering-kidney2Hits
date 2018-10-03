@@ -4,7 +4,8 @@ library(randomForest)
 setwd("~/Documents/Models/variant-filtering")
 set.seed(123) # here I fix the seed of the random generator to have the same random numbers if re-run 
 
-train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+#train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+train_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
 test_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
 
 train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
