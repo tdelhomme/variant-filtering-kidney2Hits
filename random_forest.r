@@ -4,9 +4,12 @@ library(randomForest)
 setwd("~/Documents/Models/variant-filtering")
 set.seed(123) # here I fix the seed of the random generator to have the same random numbers if re-run 
 
-#train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
-train_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
-test_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+train_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+test_table="tables/K2H_AllVariants_All_Lib_NoMinAF_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+
+# if we want to test the downsampling
+#train_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
+#test_table="downsampling/K2H_AllVariants_All_Lib_downsampling_noequal_GOF_addVCFfeatures_illuminaBED_WES_samples_annotated_with_coverage_INFO_GENO_status_supp_features.txt"
 
 train_table = read.table(train_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
 test_table = read.table(test_table, quote="\"", stringsAsFactors=F, sep="\t", header=T)
@@ -31,7 +34,7 @@ propTP = as.numeric(table(train_table$status)["TP"] / nrow(train_table))
 propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
 
 my_features=c("status","RVSB", "QVAL","AF","ERR_INFO","DP", "medianDP_INFO",
-              "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
+              "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength", "N_QVAL_20_50_INFO")
 
 if(exists("dbsnp_status")){
   if(dbsnp){

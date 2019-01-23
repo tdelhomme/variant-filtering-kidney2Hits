@@ -25,7 +25,7 @@ if(is.null(args$train_table) | help) {
       --output_folder             - folder to save the models (default: .)
       --help                      - print this text
 
-      example: add_calling_features.r --train_table=table_for_training.txt \n\n")
+      example: compute_model.r --train_table=table_for_training.txt \n\n")
   q(save="no")
 }
 
@@ -49,7 +49,7 @@ for(type in c("snv","indel")){
   propFP = as.numeric(table(train_table$status)["FP"] / nrow(train_table))
   
   my_features=c("status","RVSB", "QVAL","AF","ERR_INFO","DP", "medianDP_INFO",
-                "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength")
+                "FS", "MIN_DIST", "AO", "QUAL", "MaxRatioWin", "NbVarWin", "IoD", "HpLength", "N_QVAL_20_50_INFO")
   
   rf = randomForest(as.factor(status) ~ .,
                     data = train_table[,my_features],
@@ -58,5 +58,5 @@ for(type in c("snv","indel")){
                     # ,maxnodes=10, nodesize=20
   ) 
   assign(paste("rf_",type,sep=""), rf)
-  save(list=paste("rf_",type,sep=""), file = paste(output_folder,"/RF_model_downsample_",type,".Rdata",sep=""))
+  save(list=paste("rf_",type,sep=""), file = paste(output_folder,"/RF_model_",type,".Rdata",sep=""))
 }
