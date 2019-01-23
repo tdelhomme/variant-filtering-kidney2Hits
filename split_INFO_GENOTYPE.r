@@ -87,5 +87,5 @@ if(split_geno){
 }
 
 write.table(table, file=paste(paste(gsub(".txt","",args$table), ifelse(split_info,"INFO",""), ifelse(split_geno,"GENO",""),sep="_"),
-                              ".txt",sep=""), quote=F, sep="\t")
+                              ".txt",sep=""), quote=F, sep="\t", row.names = F)
 

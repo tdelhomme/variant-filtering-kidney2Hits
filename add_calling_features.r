@@ -134,6 +134,6 @@ table$HpLength = unlist(lapply(1:nrow(table), function(i) to_HpLength(table, i) 
 # output
 
 write.table(table, file=paste(paste(gsub(".txt","",args$table),"supp_features",sep="_"),
-                              ".txt",sep=""), quote=F, sep="\t")
+                              ".txt",sep=""), quote=F, sep="\t", row.names = F)
 
 

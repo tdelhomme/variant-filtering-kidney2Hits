@@ -112,4 +112,4 @@ if(!is.null(variable_to_plot)){
 }
 
 write.table(table, file=paste(paste(gsub(".txt","",args$table),"status",sep="_"),
-                              ".txt",sep=""), quote=F, sep="\t")
+                              ".txt",sep=""), quote=F, sep="\t", row.names = F)

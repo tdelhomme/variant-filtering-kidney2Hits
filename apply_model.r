@@ -55,4 +55,4 @@ for(type in c("snv","indel")){
 }
 
 
-write.table(target_table, file=paste(output_folder,"/",output_table,sep=""), quote=F, sep="\t")
+write.table(target_table, file=paste(output_folder,"/",output_table,sep=""), quote=F, sep="\t", row.names = F)

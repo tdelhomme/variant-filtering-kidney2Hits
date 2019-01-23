@@ -52,4 +52,4 @@ if(plot_coverage) {
   dev.off()
 }
   
-write.table(var_table, file=paste(gsub(".txt","",args$table),"_with_coverage.txt",sep=""), quote=F, sep="\t")
+write.table(var_table, file=paste(gsub(".txt","",args$table),"_with_coverage.txt",sep=""), quote=F, sep="\t", row.names = F)
